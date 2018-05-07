@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:jms="http://www.springframework.org/schema/jms" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans     
+        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/jms
+        http://www.springframework.org/schema/jms/spring-jms-4.3.xsd
+        http://activemq.apache.org/schema/core
+        http://activemq.apache.org/schema/core/activemq-core-5.13.4.xsd">
+        
+      
+        <context:component-scan base-package="com.testActive"/>
+        <mvc:annotation-driven/>
+        
+        <!--给定一个factory连接地址  -->
+        <amq:connectionFactory id="ampInfo"  brokerURL="tcp://127.0.0.1:61616" userName="admin" password="admin"/>
+        <!--创建一个工厂  -->
+        <bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <constructor-arg ref="ampInfo"/>
+        <property name="sessionCacheSize" value="100"/>
+        </bean>
+        
+        <bean id="myDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg>
+        <value>GeneralBartDestination</value>
+        </constructor-arg>
+        </bean>
+        
+        <!-- 配置你所用到的template面板，一会将会注入使用 -->
+        <bean id="menuTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="defaultDestination" ref="myDestination"/>
+        <property name="receiveTimeout" value="10000"/>   
+        <property name="pubSubDomain" value="false"/>     
+        </bean>
+       
+        
+        </beans>
